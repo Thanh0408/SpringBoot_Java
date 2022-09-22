@@ -1,0 +1,48 @@
+ - it is separate 2 parts: resource server and authorization server
+ - SPECIAL NOTE: U can check token from resource server by using one of optional:
+Option 1: 
+    @Autowired
+    private ResourceServerProperties sso;
+
+    @Primary
+    @Bean
+    public UserInfoTokenServices tokenService() {
+        UserInfoTokenServices userInfoTokenServices = new UserInfoTokenServices(sso.getUserInfoUri(), sso.getClientId());
+        userInfoTokenServices.setPrincipalExtractor(customPrincipalExtractor);
+        return userInfoTokenServices;
+    }
+
+Option 2:
+
+    @Primary
+    @Bean
+    public RemoteTokenServices tokenService() {
+        RemoteTokenServices tokenService = new RemoteTokenServices();
+        tokenService.setCheckTokenEndpointUrl(
+          "http://localhost:8080/spring-security-oauth-server/oauth/check_token");
+        tokenService.setClientId("This_is_client_id");
+        tokenService.setClientSecret("This_is_secret_id");
+        return tokenService;
+    }
+ - When i was recept data from authorization server, i have a not that, you should using a few dependency in the pom.xml file 
+    Using dependency below, what is created false when transfer data from author server -> resource server:
+	<dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+    I hightly recommend using dependency below when transfer data.(it is full of Gson attribute = 5 attribute__have deptTokens or have not)
+	<dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.4</version>
+        </dependency>
